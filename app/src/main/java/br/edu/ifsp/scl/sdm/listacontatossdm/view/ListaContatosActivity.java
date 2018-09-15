@@ -1,6 +1,7 @@
 package br.edu.ifsp.scl.sdm.listacontatossdm.view;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -85,12 +86,28 @@ public class ListaContatosActivity extends AppCompatActivity {
                 startActivityForResult(editarContatoIntent, EDITAR_CONTATO_REQUEST_CODE);
                 return true;
             case R.id.ligarParaContatoMenuItem:
+                Intent chamada = new Intent(Intent.ACTION_DIAL);
+                chamada.setData(Uri.parse("tel:" + contato.getTelefone()));
+                startActivity(chamada);
                 return true;
             case R.id.verEnderecoContatoMenuItem:
+                Intent mapsIntent = new Intent(Intent.ACTION_VIEW);
+                mapsIntent.setData(Uri.parse("http://maps.google.co.in/maps?q=" + contato.getEndereco()));
+                if (mapsIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(mapsIntent);
+                }
                 return true;
             case R.id.enviarEmailContatoMenuItem:
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto", contato.getEmail(), null));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Subject");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Body");
+                startActivity(emailIntent);
                 return true;
             case R.id.removerContatoMenuItem:
+                //remove o contato diretamente do adapter que gerencia a lista de contatos, dessa forma a chamada de notificação da atualização da lista
+                //é desnecessária, já que ela ocorre automaticamente pelo próprio método remove do adapter
+                listaContatosAdapter.remove(contato);
                 return true;
         }
         return false;
